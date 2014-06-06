@@ -7,7 +7,9 @@
         <a class="toggle-chatbox-button
                   {[ if (minimized) { ]} icon-plus {[ } ]}
                   {[ if (!minimized) { ]} icon-minus {[ } ]}
-                 "></a>
+                 " title="{[ if(minimized) { ]} {{maximize}}  {[ } else { ]} {{minimize}} {[ } ]}" 
+                 data-toggle="{[ if(!minimized) { ]} {{maximize}}  {[ } else { ]} {{minimize}} {[ } ]}"
+        ></a>
         <div class="chat-title">
             {[ if (url) { ]}
                 <a href="{{url}}" target="_blank" class="user">

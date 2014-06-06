@@ -279,6 +279,9 @@
         this.callback = callback || function () {};
         this.initial_presence_sent = 0;
         this.msg_counter = 0;
+        this.intervalTitleID = 0;
+        this.$title = $('title');
+        this.chatbox_highlightTitle_target = [];
 
         // Module-level functions
         // ----------------------
@@ -427,15 +430,20 @@
 
         this.updateMsgCounter = function () {
             if (this.msg_counter > 0) {
-                if (document.title.search(/^Messages \(\d+\) /) == -1) {
-                    document.title = "Messages (" + this.msg_counter + ") " + document.title;
+                // if (document.title.search(/^Messages \(\d+\) /) == -1) {
+                //     document.title = "Messages (" + this.msg_counter + ") " + document.title;
+                // } else {
+                //     document.title = document.title.replace(/^Messages \(\d+\) /, "Messages (" + this.msg_counter + ") ");
+                // }
+                if (!this.$title.data('status')) {
+                    var msg_alert = "(" + this.msg_counter + ") Messages " + document.title;
+                    this.$title.data({ msg_alert: msg_alert, msg: document.title, status: true }).text(msg_alert);
+                    this.intervalTitleID = setInterval(this.titleAlert, 2000);
                 } else {
-                    document.title = document.title.replace(/^Messages \(\d+\) /, "Messages (" + this.msg_counter + ") ");
+                    this.$title.data('msg_alert', this.$title.data('msg_alert').replace(/^\(\d+\) /, "(" + this.msg_counter + ") "));
                 }
                 window.blur();
                 window.focus();
-            } else if (document.title.search(/^Messages \(\d+\) /) != -1) {
-                document.title = document.title.replace(/^Messages \(\d+\) /, "");
             }
         };
 
@@ -447,6 +455,14 @@
         this.clearMsgCounter = function () {
             this.msg_counter = 0;
             this.updateMsgCounter();
+        };
+
+        this.titleAlert = function() {
+            if (converse.$title.data('flag')) {
+                converse.$title.text(converse.$title.data('msg_alert')).data('flag', false);
+            } else {
+                converse.$title.text(converse.$title.data('msg')).data('flag', true);
+            }
         };
 
         this.initStatus = function (callback) {
@@ -519,12 +535,12 @@
                 this.resized_chatbox = null;
             }, this));
 
-            $(window).on("blur focus", $.proxy(function(e) {
-                if ((this.windowState != e.type) && (e.type == 'focus')) {
-                    converse.clearMsgCounter();
-                }
-                this.windowState = e.type;
-            },this));
+            // $(window).on("blur focus", $.proxy(function(e) {
+            //     if ((this.windowState != e.type) && (e.type == 'focus')) {
+            //         converse.clearMsgCounter();
+            //     }
+            //     this.windowState = e.type;
+            // },this));
         };
 
         this.onReconnected = function () {
@@ -792,19 +808,21 @@
                 var body = $message.children('body').text(),
                     from = Strophe.getBareJidFromJid($message.attr('from')),
                     composing = $message.find('composing'),
+                    no_composing = parseInt($message.attr('no_composing')),
                     delayed = $message.find('delay').length > 0,
                     fullname = this.get('fullname'),
                     stamp, time, sender;
                 fullname = (_.isEmpty(fullname)? from: fullname).split(' ')[0];
 
                 if (!body) {
-                    if (composing.length) {
+                    if (composing.length || no_composing) {
                         this.messages.add({
                             fullname: fullname,
                             sender: 'them',
                             delayed: delayed,
                             time: moment().format(),
-                            composing: composing.length
+                            composing: composing.length,
+                            no_composing: no_composing
                         });
                     }
                 } else {
@@ -864,8 +882,10 @@
 
             events: {
                 'click .close-chatbox-button': 'closeChat',
-                'click .toggle-chatbox-button': 'toggleChatBox',
+                'click .toggle-chatbox-button, .chat-title': 'toggleChatBox',
                 'keypress textarea.chat-textarea': 'keyPressed',
+                'keyup textarea.chat-textarea': 'keyUp',
+                'focusin textarea.chat-textarea': 'resetStateAlert',
                 'click .toggle-smiley': 'toggleEmoticonMenu',
                 'click .toggle-smiley ul li': 'insertEmoticon',
                 'click .toggle-clear': 'clearMessages',
@@ -909,7 +929,9 @@
                     .html(converse.templates.chatbox(
                             _.extend(this.model.toJSON(), {
                                     show_toolbar: converse.show_toolbar,
-                                    label_personal_message: __('Personal message')
+                                    label_personal_message: __('Personal message'),
+                                    minimize: __('minimize'),
+                                    maximize: __('maximize')
                                 }
                             )
                         )
@@ -1021,16 +1043,59 @@
                         }));
                     }
                 }
+                if (message.get('no_composing')) {
+                    this.$el.find('.chat-event').remove();
+                    return;
+                }
                 if (message.get('composing')) {
-                    this.showStatusNotification(message.get('fullname')+' '+'is typing');
+                    this.showStatusNotification(message.get('fullname')+' '+__('is typing'));
                     return;
                 } else {
                     this.showMessage(_.clone(message.attributes));
                 }
-                if ((message.get('sender') != 'me') && (converse.windowState == 'blur')) {
+
+                if ((message.get('sender') != 'me') && (converse.windowState == 'blur') || (message.get('sender') != 'me' && message.isNew())) {
                     converse.incrementMsgCounter();
                 }
+
+                if((message.get('sender') != 'me' && message.isNew()) || converse.windowState == 'blur') {
+                    //Si el foco no esta en la caja de texto, alerta con un cambio de color en la cabecera del chatbox destino
+                    var $textarea = this.$el.find('.chat-textarea');
+                    if (!$textarea.is(':focus')) {
+                        this.chatboxTopAlert($textarea.end().find('.chat-head-chatbox'));
+                    }
+                }
                 return this.scrollDown();
+            },
+            chatboxTopAlert: function($chatbox_title){
+                if(!$chatbox_title.data('interval_id')) {
+                    $chatbox_title.addClass('highlightTitle').data('active', true);
+                    converse.chatbox_highlightTitle_target = $chatbox_title;
+                    var intervalAlertID = setInterval(
+                        function(){
+                            if(converse.chatbox_highlightTitle_target.hasClass('highlightTitle')) {
+                                converse.chatbox_highlightTitle_target.removeClass('highlightTitle');
+                            } else {
+                                converse.chatbox_highlightTitle_target.addClass('highlightTitle');
+                            }
+                        },
+                        800);
+                    $chatbox_title.data('interval_id', intervalAlertID);
+                }
+            },
+
+            resetStateAlert: function() {
+                var $chatbox_title = this.$el.closest('.chatbox').find('.chat-head');
+
+                if($chatbox_title.data('active')) {
+                    clearInterval($chatbox_title.data('interval_id'));
+                    $chatbox_title.removeClass('highlightTitle').removeData();
+                    if(converse.$title.data('msg')) {
+                        clearInterval(converse.intervalTitleID);
+                        converse.$title.text(converse.$title.data('msg')).removeData();
+                        converse.msg_counter = 0;
+                    }
+                }
             },
 
             sendMessageStanza: function (text) {
@@ -1117,11 +1182,28 @@
                         if (ev.keyCode != 47) {
                             // We don't send composing messages if the message
                             // starts with forward-slash.
-                            notify = $msg({'to':this.model.get('jid'), 'type': 'chat'})
+                            notify = $msg({'to':this.model.get('jid'), 'type': 'chat', 'no_composing':0})
                                             .c('composing', {'xmlns':'http://jabber.org/protocol/chatstates'});
                             converse.connection.send(notify);
                         }
+                        this.$el.data('no_composing', false);
                         this.$el.data('composing', true);
+                    }
+                }
+            },
+            keyUp: function(ev) {
+                ev.preventDefault();
+                if(ev.keyCode != KEY.ENTER) {
+                var message = $(ev.target).val(),
+                    no_composing = this.$el.data('no_composing'),
+                    notify;
+                    if(message === '' && !no_composing) {
+                        //Indica que ya no desea escribir un mensaje.
+                        notify = $msg({'to':this.model.get('jid'), 'type': 'chat', 'no_composing':1})
+                                        .c('composing', {'xmlns':'http://jabber.org/protocol/chatstates'});
+                        converse.connection.send(notify);
+                        this.$el.data('no_composing', true);
+                        this.$el.data('composing', false);
                     }
                 }
             },
@@ -1136,7 +1218,9 @@
 
             setChatBoxHeight: function (height) {
                 if (!this.model.get('minimized')) {
-                    this.$el.children('.box-flyout')[0].style.height = converse.applyHeightResistance(height)+'px';
+                    var px = converse.applyHeightResistance(height)+'px';
+                    this.$el.children('.box-flyout')[0].style.height = px;
+                    // this.$el.find('.chat-content')[0].style.height = px;
                 }
             },
 
@@ -1324,10 +1408,15 @@
             },
 
             toggleChatBox: function (ev) {
-                var $target = $(ev.target), $count;
+                var $target = $(ev.target), $count, current_title, next_title;
                 this.saveToggleState();
                 this.$el.children('.box-flyout').attr('style', '');
                 this.$el.find('div.chat-body').slideToggle('fast');
+
+                // Si le da click al nombre del usuario
+                if($target.hasClass('chat-title')) {
+                    $target = $target.prev();
+                }
                 if ($target.hasClass('icon-minus')) {
                     $target.removeClass('icon-minus').addClass('icon-plus');
                 } else {
@@ -1335,7 +1424,12 @@
                     $count = this.$el.find('.chat-head-message-count');
                     $count.html(0).data('count', 0);
                     if ($count.is(':visible')) { $count.hide('fast'); }
+                    $target.closest('.box-flyout').find('.chat-textarea').focus();
                 }
+
+                next_title = $target.attr('data-toggle');
+                current_title = $target.attr('title');
+                $target.attr({'title': next_title, 'data-toggle': current_title });
                 // Toggle drag resize ability
                 this.$el.find('.dragresize-tm').toggle();
                 this.setChatBoxHeight(this.height);
@@ -3006,7 +3100,7 @@
                             'label_pending_contacts': __('Pending contacts')
                         });
                 }
-                this.$el.hide().html(roster_markup);
+                this.$el.html(roster_markup);
 
                 this.model.fetch({add: true}); // Get the cached roster items from localstorage
             },

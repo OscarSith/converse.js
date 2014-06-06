@@ -736,16 +736,17 @@ input.error {
   margin-right: 6px;
 }
 #conversejs .chat-title {
-  padding: 1px 0;
+  cursor: pointer;
   color: white;
-  font-weight: bold;
-  line-height: 15px;
   display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-shadow: rgba(0, 0, 0, 0.51) 0 -1px 0;
+  font-weight: bold;
   height: 1em;
+  line-height: 15px;
+  overflow: hidden;
+  padding: 1px 0;
+  text-overflow: ellipsis;
+  text-shadow: rgba(0, 0, 0, 0.51) 0 -1px 0;
+  white-space: nowrap;
 }
 #conversejs .chat-title a {
   color: white;
@@ -1395,4 +1396,7 @@ input.custom-xmpp-status {
   margin-left: 0;
   cursor: n-resize;
   z-index: 20;
+}
+.highlightTitle {
+	background-color: #4C8CAA!important;
 }

@@ -118,7 +118,7 @@
                 ],
                 "me": [
                     null,
-                    ""
+                    "yo"
                 ],
                 "Show this menu": [
                     null,
@@ -526,11 +526,11 @@
                 ],
                 "This contact is online": [
                     null,
-                    ""
+                    "Este contacto está en linea"
                 ],
                 "This contact is offline": [
                     null,
-                    ""
+                    "Este contacto no está en linea"
                 ],
                 "This contact is unavailable": [
                     null,
@@ -619,6 +619,18 @@
                 "Attached": [
                     null,
                     "Adjuntado"
+                ],
+                "is typing": [
+                    null,
+                    " está escribiendo..."
+                ],
+                "minimize": [
+                    null,
+                    "Minimizar"
+                ],
+                "maximize": [
+                    null,
+                    "Maximizar"
                 ]
             }
         }
