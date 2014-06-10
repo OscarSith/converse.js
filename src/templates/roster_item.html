@@ -1,2 +1,6 @@
-<a class="open-chat" title="{{desc_chat}}" href="#"><span class="icon-{{chat_status}}" title="{{desc_status}}"></span>{{fullname}}</a>
+<a title="{{desc_chat}}" href="#" class="open-chat {[ if(!remove_contact) { ]}full_width_name{[ } else { ]}xA{[ } ]}">
+	<span class="icon-{{chat_status}}" title="{{desc_status}}"></span>{{fullname}}
+</a>
+{[ if (remove_contact) { ]}
 <a class="remove-xmpp-contact icon-remove" title="{{desc_remove}}" href="#"></a>
+{[ } ]}

@@ -9,15 +9,15 @@
     require.config({
         paths: {
             "jed": "Libraries/jed",
-            "en": "locale/en/LC_MESSAGES/en"
+            "es": "locale/es/LC_MESSAGES/es",
         }
     });
 
     define("locales", [
         'jed',
-        'en'
-        ], function (jed, en) {
+        'es'
+        ], function (jed, es) {
             root.locales = {};
-            root.locales.en = en;
+            root.locales.es = es;
         });
 })(this);

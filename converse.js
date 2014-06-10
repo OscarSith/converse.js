@@ -24,10 +24,10 @@
     } else {
         // Browser globals
         // FIXME
-        _.templateSettings = {
-            evaluate : /\{\[([\s\S]+?)\]\}/g,
-            interpolate : /\{\{([\s\S]+?)\}\}/g
-        };
+        // _.templateSettings = {
+        //     evaluate : /\{\[([\s\S]+?)\]\}/g,
+        //     interpolate : /\{\{([\s\S]+?)\}\}/g
+        // };
         // TODO Templates not defined
         root.converse = factory(jQuery, _, OTR, DSA, templates);
     }
@@ -127,7 +127,8 @@
         var VERIFIED= 2;
         var FINISHED = 3;
         var KEY = {
-            ENTER: 13
+            ENTER: 13,
+            ESC: 27
         };
         var HAS_CSPRNG = ((typeof crypto !== 'undefined') &&
             ((typeof crypto.randomBytes === 'function') ||
@@ -282,6 +283,7 @@
         this.intervalTitleID = 0;
         this.$title = $('title');
         this.chatbox_highlightTitle_target = [];
+        this.remove_contact = false;
 
         // Module-level functions
         // ----------------------
@@ -931,7 +933,8 @@
                                     show_toolbar: converse.show_toolbar,
                                     label_personal_message: __('Personal message'),
                                     minimize: __('minimize'),
-                                    maximize: __('maximize')
+                                    maximize: __('maximize'),
+                                    close: __('Close or Esc')
                                 }
                             )
                         )
@@ -1027,6 +1030,8 @@
             onMessageAdded: function (message) {
                 var time = message.get('time'),
                     times = this.model.messages.pluck('time'),
+                    $textarea = this.$el.find('.chat-textarea'),
+                    is_focus = $textarea.not(':focus').length,
                     previous_message, idx, this_date, prev_date, text, match;
 
                 // If this message is on a different day than the one received
@@ -1054,17 +1059,18 @@
                     this.showMessage(_.clone(message.attributes));
                 }
 
-                if ((message.get('sender') != 'me') && (converse.windowState == 'blur') || (message.get('sender') != 'me' && message.isNew())) {
+                if ((message.get('sender') != 'me') && (converse.windowState == 'blur') || (message.get('sender') != 'me' && message.isNew() && is_focus)) {
                     converse.incrementMsgCounter();
+                    this.chatboxTopAlert(this.$el.find('.chat-head'));
                 }
 
-                if((message.get('sender') != 'me' && message.isNew()) || converse.windowState == 'blur') {
-                    //Si el foco no esta en la caja de texto, alerta con un cambio de color en la cabecera del chatbox destino
-                    var $textarea = this.$el.find('.chat-textarea');
-                    if (!$textarea.is(':focus')) {
-                        this.chatboxTopAlert($textarea.end().find('.chat-head-chatbox'));
-                    }
-                }
+                // if((message.get('sender') != 'me' && message.isNew()) || converse.windowState == 'blur') {
+                //     //Si el foco no esta en la caja de texto, alerta con un cambio de color en la cabecera del chatbox destino
+                //     var $textarea = this.$el.find('.chat-textarea');
+                //     if (!$textarea.is(':focus')) {
+                        
+                //     }
+                // }
                 return this.scrollDown();
             },
             chatboxTopAlert: function($chatbox_title){
@@ -1175,7 +1181,7 @@
                         converse.emit('onMessageSend', message);
                     }
                     this.$el.data('composing', false);
-                } else if (!this.model.get('chatroom')) {
+                } else if (!this.model.get('chatroom') && ev.keyCode !== 9 && ev.keyCode != KEY.ESC) {
                     // composing data is only for single user chat
                     composing = this.$el.data('composing');
                     if (!composing) {
@@ -1192,10 +1198,18 @@
                 }
             },
             keyUp: function(ev) {
+                var message = $(ev.target).val();
                 ev.preventDefault();
-                if(ev.keyCode != KEY.ENTER) {
-                var message = $(ev.target).val(),
-                    no_composing = this.$el.data('no_composing'),
+                if(ev.keyCode === KEY.ESC) { // 27 = esc
+                    if(message === '') {
+                        this.closeChat();
+                    } else if(confirm(__('Are you sure to close the chat window? Your message was not sent'))) {
+                        this.closeChat();
+                    } else {
+                        this.focus();
+                    }
+                } else if(ev.keyCode != KEY.ENTER) {
+                var no_composing = this.$el.data('no_composing'),
                     notify;
                     if(message === '' && !no_composing) {
                         //Indica que ya no desea escribir un mensaje.
@@ -1348,11 +1362,11 @@
                     fullname = _.isEmpty(fullname)? item.get('jid'): fullname;
                     if (this.$el.is(':visible')) {
                         if (chat_status === 'offline') {
-                            this.showStatusNotification(fullname+' '+'has gone offline');
+                            this.showStatusNotification(fullname+' '+__('has gone offline'));
                         } else if (chat_status === 'away') {
-                            this.showStatusNotification(fullname+' '+'has gone away');
+                            this.showStatusNotification(fullname+' '+__('has gone away'));
                         } else if ((chat_status === 'dnd')) {
-                            this.showStatusNotification(fullname+' '+'is busy');
+                            this.showStatusNotification(fullname+' '+__('is busy'));
                         } else if (chat_status === 'online') {
                             this.$el.find('div.chat-event').remove();
                         }
@@ -1546,6 +1560,9 @@
             },
 
             show: function (callback) {
+                if(this.$el.find('.box-flyout').hasClass('minimized')) {
+                    this.$el.find('.toggle-chatbox-button').click();
+                }
                 if (this.$el.is(':visible') && this.$el.css('opacity') == "1") {
                     return this.focus();
                 }
@@ -2755,7 +2772,8 @@
                         _.extend(item.toJSON(), {
                             'desc_status': STATUSES[item.get('chat_status')||'offline'],
                             'desc_chat': __('Click to chat with this contact'),
-                            'desc_remove': __('Click to remove this contact')
+                            'desc_remove': __('Click to remove this contact'),
+                            remove_contact: converse.remove_contact
                         })
                     ));
                 }

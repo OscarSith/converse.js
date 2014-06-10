@@ -474,7 +474,7 @@ you can use the generic selector below, but it's slower:
 #conversejs,
 #conversejs input,
 #conversejs textarea {
-  font-size: 14px;
+  font-size: .9em;
   color: #4f4f4f;
 }
 #conversejs ol,
@@ -604,7 +604,7 @@ span.spinner.hor_centered {
   padding: 2px 2px 2px 4px;
   margin: 0;
 }
-#conversejs .chat-head-chatbox {
+div.chat-head-chatbox {
   background-color: #2D617A;
 }
 #conversejs .chat-head-chatroom {
@@ -736,13 +736,13 @@ input.error {
   margin-right: 6px;
 }
 #conversejs .chat-title {
-  cursor: pointer;
   color: white;
+  cursor: pointer;
   display: block;
+  font-size: .9em;
   font-weight: bold;
   height: 1em;
   line-height: 15px;
-  overflow: hidden;
   padding: 1px 0;
   text-overflow: ellipsis;
   text-shadow: rgba(0, 0, 0, 0.51) 0 -1px 0;
@@ -1035,8 +1035,11 @@ dl.add-converse-contact {
   line-height: 21px;
   width: 85%;
 }
-#conversejs #converse-roster dd:hover a.open-chat {
+#conversejs #converse-roster dd:hover a.xA {
   width: 70%;
+}
+.full_width_name {
+  width: 96%!important;
 }
 #conversejs #converse-roster dd.pending-xmpp-contact:hover span {
   width: 70%;

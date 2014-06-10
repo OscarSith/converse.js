@@ -26,7 +26,7 @@ module.exports = function(grunt) {
             },
             minify: {
                 dest: 'converse.min.css',
-                src: ['converse.css']
+                src: ['css/converse.css']
             }
         }
     });
@@ -78,9 +78,12 @@ module.exports = function(grunt) {
             grunt.log.write(stdout);
             done();
         };
+        /*
         exec('./node_modules/requirejs/bin/r.js -o src/build.js && ' +
              './node_modules/requirejs/bin/r.js -o src/build-no-locales-no-otr.js && ' +
              './node_modules/requirejs/bin/r.js -o src/build-no-otr.js', callback);
+        */
+        exec('./node_modules/requirejs/bin/r.js -o src/build-no-otr-locale-es.js', callback);
     });
 
     grunt.registerTask('minify', 'Create a new release', ['cssmin', 'jsmin']);

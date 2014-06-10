@@ -134,7 +134,7 @@
                 ],
                 "Your message could not be sent": [
                     null,
-                    ""
+                    "Su mensaje no pudo ser enviado"
                 ],
                 "We received an unencrypted message": [
                     null,
@@ -522,7 +522,7 @@
                 ],
                 "This contact is busy": [
                     null,
-                    ""
+                    "Este contacto está ocupado"
                 ],
                 "This contact is online": [
                     null,
@@ -538,11 +538,11 @@
                 ],
                 "This contact is away for an extended period": [
                     null,
-                    ""
+                    "Este contacto está lejos durante un período prolongado"
                 ],
                 "This contact is away": [
                     null,
-                    ""
+                    "Este contacto está lejos"
                 ],
                 "Contact requests": [
                     null,
@@ -631,6 +631,22 @@
                 "maximize": [
                     null,
                     "Maximizar"
+                ],
+                "has gone offline": [
+                    null,
+                    "está desconectado"
+                ],
+                "has gone away":[
+                    null,
+                    "Oscar se ha ido"
+                ],
+                "Are you sure to close the chat window? Your message was not sent": [
+                    null,
+                    "¿Está seguro de cerrar la ventana de chat?\n\nSu mensaje no se ha enviado"
+                ],
+                "Close or Esc": [
+                    null,
+                    "Cerrar ventana o presiona Esc"
                 ]
             }
         }
