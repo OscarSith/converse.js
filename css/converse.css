@@ -741,9 +741,10 @@ input.error {
   display: block;
   font-size: .9em;
   font-weight: bold;
-  height: 1em;
+  height: 1.27em;
   line-height: 15px;
-  padding: 1px 0;
+  padding: 1px 0 0;
+  overflow: hidden;
   text-overflow: ellipsis;
   text-shadow: rgba(0, 0, 0, 0.51) 0 -1px 0;
   white-space: nowrap;
@@ -766,7 +767,6 @@ input.error {
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0;
-  padding: 1px 0;
 }
 #conversejs div.chat-head-chatbox a.user-custom-message {
   color: white;
