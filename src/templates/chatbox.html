@@ -1,6 +1,5 @@
-<div class="box-flyout {[if (minimized) {]} minimized {[}]}"
-    {[if (!minimized) {]} style="height: {{height}}px" {[}]}>
-    <div class="dragresize dragresize-tm" {[ if (minimized) { ]} style="display:none" {[ } ]}></div>
+<div class="box-flyout" style="height: {{height}}px">
+    <div class="dragresize dragresize-tm"></div>
     <div class="chat-head chat-head-chatbox">
         <div class="chat-head-message-count">0</div>
         {[ if (show_close_chatbox) { ]}
@@ -23,7 +22,7 @@
         </div>
         <p class="user-custom-message"><p/>
     </div>
-    <div class="chat-body" {[ if (minimized) { ]} style="display:none" {[ } ]}>
+    <div class="chat-body">
         <div class="chat-content"></div>
         <form class="sendXMPPMessage" action="" method="post">
             {[ if (show_toolbar) { ]}

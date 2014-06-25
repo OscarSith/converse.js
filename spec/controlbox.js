@@ -8,16 +8,13 @@
     );
 } (this, function (mock, utils) {
     describe("The Control Box", $.proxy(function (mock, utils) {
-
         beforeEach(function () {
             runs(function () {
                 utils.openControlBox();
             });
-            waits(250);
-            runs(function () {});
         });
 
-        it("can be opened by clicking a DOM element with class 'toggle-online-users'", $.proxy(function () {
+        it("can be opened by clicking a DOM element with class 'toggle-controlbox'", $.proxy(function () {
             runs(function () {
                 utils.closeControlBox();
             });
@@ -31,7 +28,7 @@
                 spyOn(converse, 'emit');
                 // Redelegate so that the spies are now registered as the event handlers (specifically for 'onClick')
                 this.controlboxtoggle.delegateEvents();
-                $('.toggle-online-users').click();
+                $('.toggle-controlbox').click();
             }.bind(converse));
             waits(250);
             runs(function () {
@@ -501,8 +498,6 @@
             runs(function () {
                 utils.openControlBox();
             });
-            waits(250);
-            runs(function () {});
         }, converse));
 
         it("contains two tabs, 'Contacts' and 'ChatRooms'", $.proxy(function () {
@@ -524,8 +519,6 @@
                 runs(function () {
                     utils.openControlBox();
                 });
-                waits(250);
-                runs(function () {});
             }, converse));
 
             it("is opened by clicking the 'Chatrooms' tab", $.proxy(function () {
