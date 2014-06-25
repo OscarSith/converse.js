@@ -168,12 +168,13 @@
         this.visible_toolbar_buttons = {
             'emoticons': true,
             'call': false,
-            'clear': true
+            'clear': false
         };
         this.xhr_custom_status = false;
         this.xhr_custom_status_url = '';
         this.xhr_user_search = false;
         this.xhr_user_search_url = '';
+        this.show_close_chatbox = true;
 
         // Allow only whitelisted configuration attributes to be overwritten
         _.extend(this, _.pick(settings, [
@@ -208,7 +209,8 @@
             'xhr_custom_status',
             'xhr_custom_status_url',
             'xhr_user_search',
-            'xhr_user_search_url'
+            'xhr_user_search_url',
+            'show_close_chatbox'
         ]));
         if (settings.visible_toolbar_buttons) {
             _.extend(
@@ -934,7 +936,8 @@
                                     label_personal_message: __('Personal message'),
                                     minimize: __('minimize'),
                                     maximize: __('maximize'),
-                                    close: __('Close or Esc')
+                                    close: __('Close or Esc'),
+                                    show_close_chatbox: converse.show_close_chatbox
                                 }
                             )
                         )

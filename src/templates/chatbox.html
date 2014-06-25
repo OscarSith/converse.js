@@ -3,7 +3,9 @@
     <div class="dragresize dragresize-tm" {[ if (minimized) { ]} style="display:none" {[ } ]}></div>
     <div class="chat-head chat-head-chatbox">
         <div class="chat-head-message-count">0</div>
+        {[ if (show_close_chatbox) { ]}
         <a class="close-chatbox-button icon-close" title="{{ close }}"></a>
+        {[ } ]}
         <a class="toggle-chatbox-button
                   {[ if (minimized) { ]} icon-plus {[ } ]}
                   {[ if (!minimized) { ]} icon-minus {[ } ]}
